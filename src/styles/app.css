@@ -38,6 +38,7 @@
   --r-card: 20px;
   --r-md: 14px;
   --r-sm: 10px;
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --font: 'Inter', 'Noto Sans TC', ui-sans-serif, system-ui, -apple-system, 'PingFang TC', sans-serif;
 }
 
@@ -107,10 +108,15 @@ button { font: inherit; color: inherit; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .brand img { width: 36px; height: 36px; image-rendering: pixelated; }
 .brand b { font-size: 18px; color: var(--ink); }
-.nav { display: flex; gap: 4px; background: color-mix(in srgb, var(--surface) 72%, transparent); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px; }
-.nav a { font-size: 14px; font-weight: 600; color: var(--muted); padding: 8px 18px; border-radius: 999px; text-decoration: none; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.nav a:hover { color: var(--ink); }
-.nav a.active { background: var(--primary); color: var(--primary-ink); }
+/* 上方分頁：底層是可點的連結；上層是「選中樣式」的複本，用 clip-path 只露出選中那格 */
+.nav { position: relative; background: color-mix(in srgb, var(--surface) 72%, transparent); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px; }
+.nav-base, .nav-active { display: flex; gap: 4px; }
+.nav-base a, .nav-active span { font-size: 14px; font-weight: 600; padding: 8px 18px; border-radius: 999px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.nav-base a { color: var(--muted); text-decoration: none; transition: color 150ms ease; }
+@media (hover: hover) and (pointer: fine) { .nav-base a:hover { color: var(--ink); } }
+.nav-base a.active { color: var(--ink); }
+.nav-active { position: absolute; inset: 0; padding: 4px; background: var(--primary); color: var(--primary-ink); border-radius: 999px; pointer-events: none; }
+.nav-active.ready { transition: clip-path 250ms var(--ease-in-out), opacity 150ms ease; }
 .iconbtn { width: 40px; height: 40px; border-radius: 999px; background: var(--surface); border: 1px solid var(--primary-line); display: grid; place-items: center; cursor: pointer; color: var(--primary); }
 .main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 8px 16px 64px; }
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) 356px; gap: 24px; align-items: start; }
@@ -288,4 +294,6 @@ textarea.input { border-radius: var(--r-md); min-height: 130px; resize: vertical
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  /* 減少動態：泡泡不滑動，改成淡入淡出 */
+  .nav-active.ready { transition: opacity 150ms ease !important; }
 }
