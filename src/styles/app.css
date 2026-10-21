@@ -39,6 +39,7 @@
   --r-md: 14px;
   --r-sm: 10px;
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --font: 'Inter', 'Noto Sans TC', ui-sans-serif, system-ui, -apple-system, 'PingFang TC', sans-serif;
 }
 
@@ -303,6 +304,15 @@ textarea.input { border-radius: var(--r-md); min-height: 130px; resize: vertical
   .tabbar-active { position: absolute; inset: 0; padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)); background: var(--primary-soft); color: var(--primary); pointer-events: none; }
   .word-item { gap: 12px; }
 }
+/* 深淺色切換：新主題從左上角圓形擴散（150% 是從角落蓋到對角所需的半徑） */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { animation: theme-reveal 500ms var(--ease-out); }
+@keyframes theme-reveal {
+  from { clip-path: circle(0% at 0% 0%); }
+  to { clip-path: circle(150% at 0% 0%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   /* 減少動態：泡泡不滑動，改成淡入淡出 */

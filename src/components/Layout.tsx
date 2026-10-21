@@ -35,10 +35,26 @@ export function useThemeSync() {
   return dark
 }
 
+/**
+ * 切換深淺色：新主題從畫面左上角以圓形擴散蓋滿整頁（View Transitions API）。
+ * 不支援的瀏覽器、或開了「減少動態效果」時直接切換。
+ */
+function switchTheme(next: 'light' | 'dark') {
+  const apply = () => {
+    // 先直接改 html 的 data-theme，讓瀏覽器拍到的「新畫面」已經是新主題
+    document.documentElement.dataset.theme = next
+    setTheme(next)
+  }
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown }
+  if (!doc.startViewTransition || reduce) return apply()
+  doc.startViewTransition(apply)
+}
+
 export function ThemeButton() {
   const dark = useThemeSync()
   return (
-    <button className="iconbtn" type="button" onClick={() => setTheme(dark ? 'light' : 'dark')} aria-label={dark ? '切換淺色模式' : '切換深色模式'}>
+    <button className="iconbtn" type="button" onClick={() => switchTheme(dark ? 'light' : 'dark')} aria-label={dark ? '切換淺色模式' : '切換深色模式'}>
       {dark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   )
