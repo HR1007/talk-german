@@ -1,7 +1,8 @@
 import { CalendarDays, ClipboardCheck, Cloud, CloudAlert, CloudCheck, CloudOff, Languages, Library, Moon, Sun } from 'lucide-react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useSync } from '../lib/cloud'
+import { useClipIndicator } from './Sliding'
 import { setTheme, useStore } from '../lib/store'
 
 const TABS = [
@@ -60,50 +61,47 @@ function SyncButton() {
   )
 }
 
-/**
- * 上方分頁：疊一份「選中樣式」的分頁列在原本那列上面，用 clip-path 只露出選中的那格，
- * 換分頁時滑動裁切範圍。底色和白字是同一個元素一起被露出來，不會有顏色先到、字後到的錯位。
- */
+/** 上方分頁與手機底部分頁列都用同一個滑動泡泡（見 Sliding.tsx） */
 function TopNav() {
-  const navRef = useRef<HTMLElement>(null)
+  const [box, setBox] = useState<HTMLElement | null>(null)
   const { pathname } = useLocation()
-  const [clip, setClip] = useState<string | null>(null)
-  const [ready, setReady] = useState(false)
-
-  useLayoutEffect(() => {
-    const nav = navRef.current
-    if (!nav) return
-    const measure = () => {
-      const active = nav.querySelector<HTMLElement>('.nav-base a.active')
-      if (!active) return setClip(null)
-      const w = nav.clientWidth
-      const h = nav.clientHeight
-      const left = active.offsetLeft
-      const top = active.offsetTop
-      setClip(`inset(${top}px ${w - left - active.offsetWidth}px ${h - top - active.offsetHeight}px ${left}px round 999px)`)
-    }
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(nav)
-    document.fonts?.ready.then(measure)
-    return () => ro.disconnect()
-  }, [pathname])
-
-  // 第一次量好位置之後才打開過渡，避免一載入就從角落滑進來
-  useEffect(() => {
-    if (clip && !ready) requestAnimationFrame(() => setReady(true))
-  }, [clip, ready])
-
+  const indicator = useClipIndicator(box, '.nav-base a.active', pathname)
   return (
-    <nav className="nav" ref={navRef} aria-label="主要分頁">
+    <nav className="nav" ref={setBox} aria-label="主要分頁">
       <div className="nav-base">
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to}>{t.label}</NavLink>
         ))}
       </div>
-      <div className={`nav-active${ready ? ' ready' : ''}`} aria-hidden="true" style={{ clipPath: clip ?? 'inset(50% 50% 50% 50% round 999px)', opacity: clip ? 1 : 0 }}>
+      <div className={`nav-active${indicator.className}`} aria-hidden="true" style={indicator.style}>
         {TABS.map((t) => (
           <span key={t.to}>{t.label}</span>
+        ))}
+      </div>
+    </nav>
+  )
+}
+
+function TabBar() {
+  const [box, setBox] = useState<HTMLElement | null>(null)
+  const { pathname } = useLocation()
+  const indicator = useClipIndicator(box, '.tabbar-base a.active', pathname)
+  return (
+    <nav className="tabbar" ref={setBox} aria-label="主要分頁">
+      <div className="tabbar-base">
+        {TABS.map((t) => (
+          <NavLink key={t.to} to={t.to}>
+            <t.icon size={22} />
+            {t.label}
+          </NavLink>
+        ))}
+      </div>
+      <div className={`tabbar-active${indicator.className}`} aria-hidden="true" style={indicator.style}>
+        {TABS.map((t) => (
+          <span key={t.to}>
+            <t.icon size={22} />
+            {t.label}
+          </span>
         ))}
       </div>
     </nav>
@@ -127,14 +125,7 @@ export default function Layout() {
       <main className="main">
         <Outlet />
       </main>
-      <nav className="tabbar" aria-label="主要分頁">
-        {TABS.map((t) => (
-          <NavLink key={t.to} to={t.to}>
-            <t.icon size={22} />
-            {t.label}
-          </NavLink>
-        ))}
-      </nav>
+      <TabBar />
     </div>
   )
 }

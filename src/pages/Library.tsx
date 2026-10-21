@@ -2,6 +2,7 @@ import { Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Art, SpeakButton } from '../components/bits'
+import { Segmented } from '../components/Sliding'
 import { WORD_BY_ID } from '../data'
 import type { Article } from '../data/types'
 import { shortDate } from '../lib/date'
@@ -92,21 +93,32 @@ export default function LibraryPage() {
             <input className="input" placeholder="搜尋德文或中文" value={q} onChange={(e) => setQ(e.target.value)} />
           </label>
           <div className="wrap-row">
-            <div className="seg" role="group" aria-label="狀態">
-              <button className={status === 'all' ? 'on' : ''} onClick={() => setStatus('all')}>全部 {entries.length}</button>
-              <button className={status === 'learned' ? 'on' : ''} onClick={() => setStatus('learned')}>已熟背 {learned}</button>
-              <button className={status === 'learning' ? 'on' : ''} onClick={() => setStatus('learning')}>學習中 {learning}</button>
-            </div>
-            <div className="seg" role="group" aria-label="冠詞">
-              {(['all', 'der', 'die', 'das'] as const).map((a) => (
-                <button key={a} className={art === a ? 'on' : ''} onClick={() => setArt(a)}>{a === 'all' ? '所有冠詞' : a}</button>
-              ))}
-            </div>
-            <div className="seg" role="group" aria-label="排序">
-              <button className={sort === 'recent' ? 'on' : ''} onClick={() => setSort('recent')}>最新</button>
-              <button className={sort === 'alpha' ? 'on' : ''} onClick={() => setSort('alpha')}>A–Z</button>
-              <button className={sort === 'weak' ? 'on' : ''} onClick={() => setSort('weak')}>最弱</button>
-            </div>
+            <Segmented
+              label="狀態"
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: 'all', label: `全部 ${entries.length}` },
+                { value: 'learned', label: `已熟背 ${learned}` },
+                { value: 'learning', label: `學習中 ${learning}` },
+              ]}
+            />
+            <Segmented
+              label="冠詞"
+              value={art}
+              onChange={setArt}
+              options={(['all', 'der', 'die', 'das'] as const).map((a) => ({ value: a, label: a === 'all' ? '所有冠詞' : a }))}
+            />
+            <Segmented
+              label="排序"
+              value={sort}
+              onChange={setSort}
+              options={[
+                { value: 'recent', label: '最新' },
+                { value: 'alpha', label: 'A–Z' },
+                { value: 'weak', label: '最弱' },
+              ]}
+            />
           </div>
         </div>
 

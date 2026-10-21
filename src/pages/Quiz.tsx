@@ -2,6 +2,7 @@ import { ArrowRight, Check, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Art, SpeakButton } from '../components/bits'
+import { Segmented } from '../components/Sliding'
 import { WORD_BY_ID, type WordWithDay } from '../data'
 import { addDays, dateKey, shortDate } from '../lib/date'
 import { ARTICLES, QTYPE_LABEL, buildQuiz, clozeParts, grade, type QType, type Question, type Verdict } from '../lib/quiz'
@@ -130,11 +131,16 @@ export default function Quiz() {
         <div className="between" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div className="stack-sm">
             <h3>3. 題數</h3>
-            <div className="seg" role="group" aria-label="題數">
-              <button className={count === 10 ? 'on' : ''} onClick={() => setCount(10)}>10 題</button>
-              <button className={count === 20 ? 'on' : ''} onClick={() => setCount(20)}>20 題</button>
-              <button className={count === 'all' ? 'on' : ''} onClick={() => setCount('all')}>全部 {pool.length} 題</button>
-            </div>
+            <Segmented<number | 'all'>
+              label="題數"
+              value={count}
+              onChange={setCount}
+              options={[
+                { value: 10, label: '10 題' },
+                { value: 20, label: '20 題' },
+                { value: 'all', label: `全部 ${pool.length} 題` },
+              ]}
+            />
           </div>
           <div className="row">
             <span className="xs" id="auto-label">答錯自動加入學習中</span>

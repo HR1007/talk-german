@@ -1,6 +1,7 @@
 import { Check, Flame } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Art, Markup, SpeakButton } from '../components/bits'
+import { Segmented } from '../components/Sliding'
 import { wordId } from '../data'
 import { prettyDate, thisWeek } from '../lib/date'
 import { markWord, setTrack, streakDays, useStore } from '../lib/store'
@@ -24,9 +25,16 @@ export default function Daily() {
   return (
     <div className="grid-2">
       <section className="card" aria-labelledby="daily-title">
-        <div className="seg" role="group" aria-label="單字庫" style={{ alignSelf: 'flex-start' }}>
-          <button className={track === 'life' || pending ? 'on' : ''} onClick={() => setTrack('life')}>生活常用{lifeCount ? ` ${lifeCount.toLocaleString('en-US')} 字` : ''}</button>
-          <button className={track === 'academic' && !pending ? 'on' : ''} onClick={() => setTrack('academic')}>B1 學術 200 字</button>
+        <div style={{ alignSelf: 'flex-start' }}>
+          <Segmented
+            label="單字庫"
+            value={pending ? 'life' : track}
+            onChange={setTrack}
+            options={[
+              { value: 'life', label: `生活常用${lifeCount ? ` ${lifeCount.toLocaleString('en-US')} 字` : ''}` },
+              { value: 'academic', label: 'B1 學術 200 字' },
+            ]}
+          />
         </div>
         <div className="between" style={{ alignItems: 'flex-start' }}>
           <div className="stack-sm" style={{ gap: 6 }}>

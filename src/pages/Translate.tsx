@@ -1,6 +1,7 @@
 import { CircleCheck, ExternalLink, LoaderCircle, Mic, Square, TriangleAlert, Type, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { SpeakButton } from '../components/bits'
+import { Segmented } from '../components/Sliding'
 import { canRecognize, createRecognizer, type Recognizer } from '../lib/speech'
 import { TranslateError, translateDeToZh } from '../lib/translate'
 
@@ -109,11 +110,18 @@ export default function Translate() {
         <p className="muted">即時錄音或貼上德文，自動翻譯成繁體中文</p>
       </div>
 
-      <div className="tabs" role="tablist" aria-label="翻譯方式">
-        <button role="tab" aria-selected={mode === 'record'} className={mode === 'record' ? 'on' : ''} onClick={() => setMode('record')}><Mic size={16} />即時錄音</button>
-        <button role="tab" aria-selected={mode === 'text'} className={mode === 'text' ? 'on' : ''} onClick={() => setMode('text')}><Type size={16} />文字輸入</button>
-        <button role="tab" aria-selected={mode === 'upload'} className={mode === 'upload' ? 'on' : ''} onClick={() => setMode('upload')}><Upload size={16} />上傳檔案</button>
-      </div>
+      <Segmented
+        variant="tabs"
+        role="tablist"
+        label="翻譯方式"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: 'record', label: <><Mic size={16} />即時錄音</> },
+          { value: 'text', label: <><Type size={16} />文字輸入</> },
+          { value: 'upload', label: <><Upload size={16} />上傳檔案</> },
+        ]}
+      />
 
       {mode === 'record' && (
         canRecognize() ? (

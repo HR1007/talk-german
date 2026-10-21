@@ -116,7 +116,10 @@ button { font: inherit; color: inherit; }
 @media (hover: hover) and (pointer: fine) { .nav-base a:hover { color: var(--ink); } }
 .nav-base a.active { color: var(--ink); }
 .nav-active { position: absolute; inset: 0; padding: 4px; background: var(--primary); color: var(--primary-ink); border-radius: 999px; pointer-events: none; }
-.nav-active.ready { transition: clip-path 250ms var(--ease-in-out), opacity 150ms ease; }
+.nav-active.ready, .slide-active.ready, .tabbar-active.ready { transition: clip-path 250ms var(--ease-in-out), opacity 150ms ease; }
+/* 分段選擇器與分頁：底層按鈕可點，上層複本只負責選中的樣子 */
+.slide { position: relative; }
+.slide-active { position: absolute; inset: 0; pointer-events: none; }
 .iconbtn { width: 40px; height: 40px; border-radius: 999px; background: var(--surface); border: 1px solid var(--primary-line); display: grid; place-items: center; cursor: pointer; color: var(--primary); }
 .main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 8px 16px 64px; }
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) 356px; gap: 24px; align-items: start; }
@@ -154,9 +157,12 @@ button.chip { cursor: pointer; }
 .t-der { color: var(--der); } .t-die { color: var(--die); } .t-das { color: var(--das); }
 .bar { height: 8px; border-radius: 999px; background: var(--primary-soft); overflow: hidden; }
 .bar i { display: block; height: 100%; border-radius: 999px; background: var(--primary); transition: width .3s; }
-.seg { display: inline-flex; background: var(--surface-3); border-radius: 999px; padding: 3px; flex-wrap: wrap; }
-.seg button { border: 0; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
-.seg button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(16, 24, 40, .08); }
+.seg, .seg-active { display: inline-flex; border-radius: 999px; padding: 3px; flex-wrap: wrap; }
+.seg { background: var(--surface-3); }
+.seg button, .seg-active span { border: 0; background: none; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.seg button { cursor: pointer; color: var(--muted); transition: color 150ms ease; }
+.seg button.on { color: var(--ink); }
+.seg-active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(16, 24, 40, .08); }
 .input, textarea.input { width: 100%; background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 10px 16px; font: inherit; font-size: 15px; color: var(--ink); }
 textarea.input { border-radius: var(--r-md); min-height: 130px; resize: vertical; line-height: 1.6; }
 .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
@@ -253,9 +259,12 @@ textarea.input { border-radius: var(--r-md); min-height: 130px; resize: vertical
 
 /* ---------- translate ---------- */
 .translator { max-width: 670px; margin: 24px auto 0; align-items: center; text-align: center; }
-.translator .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface-3); border-radius: 12px; padding: 4px; width: 100%; }
-.translator .tabs button { border: 0; background: none; padding: 10px; border-radius: 9px; font-size: 15px; font-weight: 600; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-.translator .tabs button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(16, 24, 40, .08); }
+.translator .tabs, .translator .tabs-active { display: grid; grid-template-columns: repeat(3, 1fr); border-radius: 12px; padding: 4px; }
+.translator .tabs { background: var(--surface-3); width: 100%; }
+.translator .tabs button, .translator .tabs-active span { border: 0; background: none; padding: 10px; border-radius: 9px; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.translator .tabs button { color: var(--muted); cursor: pointer; transition: color 150ms ease; }
+.translator .tabs button.on { color: var(--ink); }
+.translator .tabs-active { background: var(--surface); color: var(--ink); }
 .drop { width: 100%; border: 2px dashed var(--line-2); border-radius: var(--r-md); padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--muted); }
 .mic { width: 84px; height: 84px; border-radius: 999px; background: var(--primary); color: #fff; border: 0; cursor: pointer; display: grid; place-items: center; box-shadow: var(--shadow-btn); }
 .mic.rec { background: var(--die); animation: pulse 1.4s ease-in-out infinite; }
@@ -287,13 +296,15 @@ textarea.input { border-radius: var(--r-md); min-height: 130px; resize: vertical
   .opt-grid { grid-template-columns: 1fr; }
   .answers { gap: 10px; }
   .answer { font-size: 22px; padding: 16px 0; }
-  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line-2); justify-content: space-around; padding: 8px 0 calc(10px + env(safe-area-inset-bottom, 0px)); }
-  .tabbar a { font-size: 11px; font-weight: 600; color: var(--faint); text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 64px; }
-  .tabbar a.active { color: var(--primary); }
+  .tabbar { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line-2); padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .tabbar-base, .tabbar-active { display: flex; justify-content: space-around; }
+  .tabbar-base a, .tabbar-active span { font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 72px; padding: 6px 10px; border-radius: 14px; }
+  .tabbar-base a { color: var(--faint); text-decoration: none; }
+  .tabbar-active { position: absolute; inset: 0; padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)); background: var(--primary-soft); color: var(--primary); pointer-events: none; }
   .word-item { gap: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   /* 減少動態：泡泡不滑動，改成淡入淡出 */
-  .nav-active.ready { transition: opacity 150ms ease !important; }
+  .nav-active.ready, .slide-active.ready, .tabbar-active.ready { transition: opacity 150ms ease !important; }
 }
