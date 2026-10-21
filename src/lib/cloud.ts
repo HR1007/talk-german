@@ -20,7 +20,7 @@ export const supabase = URL && KEY
 
 export type SyncState =
   | { kind: 'off' }
-  | { kind: 'signed-out' }
+  | { kind: 'signed-out'; message?: string }
   | { kind: 'syncing'; email: string }
   | { kind: 'synced'; email: string; at: string }
   | { kind: 'error'; email: string; message: string }
@@ -252,17 +252,40 @@ export async function sendMagicLink(email: string) {
   if (error) throw error
 }
 
+/** 信裡的數字驗證碼登入：不經過網址跳轉，也不限定同一個瀏覽器 */
+export async function verifyCode(email: string, code: string) {
+  if (!supabase) throw new Error('雲端同步沒有設定')
+  const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
+  if (error) throw error
+}
+
 export async function signOut() {
   await supabase?.auth.signOut()
 }
 
+// 從信裡的連結回來時網址會帶 ?code=（成功）或 ?error_description=（失效）
+const params = new URLSearchParams(window.location.search)
+const arrivedWithCode = params.has('code')
+const linkError = params.get('error_description')
+
+function linkFailedMessage(raw?: string | null) {
+  if (raw && /expired/i.test(raw)) return '登入連結已過期，請重新寄一封，或直接輸入信裡的驗證碼。'
+  return '這個登入連結沒辦法用（可能是舊的連結，或用不同的瀏覽器打開）。請輸入信裡的驗證碼，或重新寄一封。'
+}
+
 if (supabase) {
+  if (linkError) {
+    setSync({ kind: 'signed-out', message: linkFailedMessage(linkError) })
+    window.history.replaceState(null, '', window.location.pathname + window.location.hash)
+  }
   supabase.auth.onAuthStateChange((event, s) => {
     const before = session?.user.id
     session = s
     if (!s) {
       rowIds.clear()
-      setSync({ kind: 'signed-out' })
+      const failed = event === 'INITIAL_SESSION' && arrivedWithCode
+      setSync({ kind: 'signed-out', message: failed ? linkFailedMessage() : sync.kind === 'signed-out' ? sync.message : undefined })
+      if (failed) window.history.replaceState(null, '', window.location.pathname + window.location.hash)
       return
     }
     // INITIAL_SESSION（重新整理）與 SIGNED_IN（點了信裡的連結）都要合併一次；換 token 不用

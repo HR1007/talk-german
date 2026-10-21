@@ -1,0 +1,24 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEE8F6;padding:32px 12px;font-family:'Helvetica Neue',Arial,'PingFang TC','Microsoft JhengHei',sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#FFFFFF;border-radius:20px;padding:36px 32px;">
+      <tr><td align="center" style="padding-bottom:16px;">
+        <img src="https://hr1007.github.io/talk-german/pretzel.png" width="72" height="72" alt="" style="display:block;image-rendering:pixelated;">
+      </td></tr>
+      <tr><td align="center" style="font-size:22px;font-weight:700;color:#101828;padding-bottom:8px;">歡迎來到 Deutsch Translater 🥨</td></tr>
+      <tr><td align="center" style="font-size:15px;line-height:1.7;color:#4A5565;padding-bottom:28px;">你用 {{ .Email }} 註冊了帳號。<br>按下面的按鈕確認信箱，就能把單字庫和測驗紀錄同步到雲端。</td></tr>
+      <tr><td align="center" style="padding-bottom:28px;">
+        <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#4F39F6;color:#FFFFFF;font-size:16px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:999px;">確認信箱並登入</a>
+      </td></tr>
+      <tr><td align="center" style="padding-bottom:24px;">
+        <div style="font-size:13px;color:#6A7282;padding-bottom:8px;">或在網站上輸入驗證碼</div>
+        <div style="display:inline-block;font-size:30px;font-weight:700;letter-spacing:8px;color:#101828;background:#F5F3FF;border-radius:12px;padding:12px 20px;font-family:'SF Mono',Menlo,Consolas,monospace;">{{ .Token }}</div>
+      </td></tr>
+      <tr><td style="font-size:13px;line-height:1.7;color:#6A7282;border-top:1px solid #F0F1F4;padding-top:20px;">
+        請用你送出註冊的同一個瀏覽器打開這個連結。如果你沒有註冊過，忽略這封信就好，帳號不會被啟用。<br>
+        按鈕沒反應的話，把這個網址貼到瀏覽器：<br>
+        <a href="{{ .ConfirmationURL }}" style="color:#4F39F6;word-break:break-all;">{{ .ConfirmationURL }}</a>
+      </td></tr>
+    </table>
+    <p style="font-size:12px;color:#99A1AF;margin:16px 0 0;">Deutsch Translater · 德文翻譯與每日單字</p>
+  </td></tr>
+</table>
